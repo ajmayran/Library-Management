@@ -1,0 +1,139 @@
+/* General Table Styles */
+.table {
+    border: 1px solid #dee2e6; /* Border for the entire table */
+    border-radius: 0.5rem; /* Rounded corners */
+    overflow: hidden; /* Ensures borders don't overflow */
+}
+
+.table thead {
+    background-color: #007bff; /* Primary blue for header */
+    color: #ffffff; /* White text */
+    text-transform: uppercase; /* Capitalized headers */
+    font-size: 1rem; /* Slightly smaller font size */
+}
+.table th {
+    white-space: nowrap; /* Ensures text stays on one line */
+}
+
+.table-hover tbody tr:hover {
+    background-color: #f1f3f5; /* Light gray hover effect */
+}
+
+.table tbody td {
+    font-size: 0.875rem; /* Slightly smaller font size */
+    vertical-align: middle; /* Vertically center content */
+    padding: 0.5rem; /* Add padding */
+}
+
+/* No Data Message */
+.table tbody .text-muted {
+    font-size: 1rem;
+    font-style: italic;
+}
+
+/* Pagination and Search Bar */
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+    text-decoration: none; /* Remove underline */
+    border: none; /* Remove borders */
+    border-radius: 0.25rem; /* Add rounded corners */
+    background-color: #007bff; /* Primary blue color */
+    color: #ffffff !important; /* White text */
+    padding: 0.5rem 0.75rem; /* Add padding */
+    margin: 0 2px; /* Small margin between buttons */
+    transition: background-color 0.3s, box-shadow 0.3s; /* Add smooth hover effects */
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:hover {
+    background-color: #0056b3;
+    color: #ffffff !important;
+}
+
+
+/* Box Shadow */
+.table-responsive {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow around the table container */
+    padding: 1rem;
+    border-radius: 0.5rem;
+    background-color: #ffffff; /* Ensure a clean background */
+}
+
+/* Button Customization */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+    transition: background-color 0.3s, box-shadow 0.3s;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+.dataTables_wrapper .dataTables_paginate,
+.dataTables_wrapper .dataTables_info {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    margin-top: 1rem;
+    cursor: pointer;
+}
+
+.dataTables_wrapper .dataTables_paginate .paginate_button:focus {
+    outline: none;
+    box-shadow: none;
+}
+/* Style the search input container */
+.dataTables_wrapper .dataTables_filter {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-bottom: 1rem; /* Add some space below */
+}
+
+/* Style the search label */
+.dataTables_wrapper .dataTables_filter label {
+    font-weight: bold;
+    margin-right: 1rem; /* Add space between label and input */
+    color: #495057; /* Muted text color */
+}
+
+/* Style the search input */
+.dataTables_wrapper .dataTables_filter input {
+    border: 1px solid #ced4da; /* Light gray border */
+    border-radius: 0.25rem; /* Rounded corners */
+    padding: 0.5rem 1rem; /* Add padding for a clean look */
+    font-size: 0.875rem; /* Consistent font size */
+    color: #495057; /* Dark gray text */
+    width: 250px; /* Set a fixed width */
+    transition: all 0.3s ease-in-out; /* Add smooth transitions */
+}
+
+/* Focus effect on the search input */
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: #007bff; /* Highlighted border color on focus */
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Subtle glow effect */
+    outline: none; /* Remove default outline */
+}
+
+/* Add search icon inside the input (optional) */
+.dataTables_wrapper .dataTables_filter input::placeholder {
+    color: #6c757d; /* Muted placeholder text */
+    font-style: italic; /* Italicize placeholder */
+}
+
+.dataTables_wrapper .dataTables_length {
+    margin-bottom: 1rem; /* Add space below the dropdown */
+}
+
+/* Optional: Add more spacing and alignment for mobile screens */
+@media (max-width: 576px) {
+    .dataTables_wrapper .dataTables_filter {
+        justify-content: center;
+    }
+
+    .dataTables_wrapper .dataTables_filter input {
+        width: 100%; /* Full width on small screens */
+    }
+}
+
+

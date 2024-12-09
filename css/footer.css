@@ -1,0 +1,35 @@
+.footer {
+    background-color: orange; /* Set the background color to orange */
+    padding: 20px 0; /* Add some padding for spacing */
+    position: relative; /* Position relative for any absolute children */
+    bottom: 0; /* Stick to the bottom of the page */
+    width: 100%; /* Full width */
+}
+
+.footer .container-fluid {
+    display: flex; /* Use flexbox for alignment */
+    justify-content: center; /* Center the content */
+    align-items: center; /* Center vertically */
+}
+
+.footer h6 {
+    margin: 0; /* Remove default margin */
+    font-size: 16px; /* Set font size */
+    padding: 50px;
+}
+
+.footer-links {
+    padding: 0; /* Remove default padding */
+    margin: 10px 0; /* Add some margin for spacing */
+    list-style: none; /* Remove bullet points */
+}
+
+.footer-link {
+    color: white; /* Set link color to white */
+    text-decoration: none; /* Remove underline */
+    transition: color 0.3s ease; /* Smooth transition for color change */
+}
+
+.footer-link:hover {
+    color: #007bff; /* Change color on hover */
+}
