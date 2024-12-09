@@ -14,17 +14,36 @@
 <body>
     <?php include_once './includes/student_navbar.php'; ?>
     <br>
-    <div class="container">
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="text-secondary">Overdues</h4>
-        </div>
-    </div>
     <?php
     require_once './classes/book.class.php';
     require_once './includes/functions.php';
     $bookObj = new Books();
     $array = $bookObj->fetchOverdues();
     ?>
+    <div class="container">
+        <div class="d-flex justify-content-start align-items-center mb-3">
+            <h4 class="text-secondary">Overdue Books and Penalties</h4>
+        </div>
+    </div>
+
+    <!-- Grid Card to Display Overdue Books Count -->
+    <div class="row" style="margin-left: 2rem;">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Overdue Books</h5>
+                    <h3 class="card-text text-danger">
+                        <?php
+                        // Get overdue count
+                        $overdueCount = $bookObj->countOverdueBooks();
+                        echo $overdueCount;
+                        ?>
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Grid Card -->
     <div class="table-responsive">
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
@@ -33,7 +52,7 @@
                     <th scope="col">Book Title</th>
                     <th scope="col">Subject</th>
                     <th scope="col">Borrowed Date</th>
-                    <th scope="col">Supposely Returned Date</th>
+                    <th scope="col">Expected Returned Date</th>
                     <th scope="col">Days Overdue</th>
                     <th scope="col">Fines</th>
                 </tr>
@@ -44,7 +63,7 @@
                 ?>
                     <tr>
                         <td colspan="7">
-                            <p class="text-center text-muted" style="padding: 10rem;">No Books found.</p>
+                            <p class="text-center text-muted" style="padding: 10rem;">No Books found that is Overdue.</p>
                         </td>
                     </tr>
                     <?php
@@ -59,9 +78,19 @@
                             <td><?= $arr['borrow_date'] ?></td>
                             <td><?= $arr['return_date'] ?></td>
                             <td>
-                                <a href="return-book.php?id=<?= $arr['id'] ?>" class="btn btn-primary">Return Book</a>
+                                <?php if ($arr['overdue_days'] > 0) { ?>
+                                    <?= $arr['overdue_days'] ?> days
+                                <?php } else { ?>
+                                    <span class="text-success">No overdue</span>
+                                <?php } ?>
                             </td>
-
+                            <td>
+                                <?php if ($arr['overdue_days'] > 0) { ?>
+                                    $<?= $arr['fine'] ?>
+                                <?php } else { ?>
+                                    <span class="text-success">No fine</span>
+                                <?php } ?>
+                            </td>
                         </tr>
                 <?php
                     }
@@ -70,36 +99,8 @@
             </tbody>
         </table>
     </div>
-
     <!-- Bootstrap and DataTables JS -->
-    <script src="./assets/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="./assets/bootstrap-datatables/datatables.js"></script>
-    <script src="./assets/bootstrap-datatables/datatables.min.css"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            $('#booksTable').DataTable({
-                "pageLength": 20,
-                "lengthMenu": [
-                    [20, 40, 60, 80 - 1],
-                    [20, 40, 60, 80, "All"]
-                ],
-                "searching": true,
-                "ordering": true,
-                "paging": true,
-                "language": {
-                    "emptyTable": "No data available in table",
-                    "lengthMenu": "Show _MENU_ Books per page",
-                    "search": "Search Books: ",
-                    "paginate": {
-                        "next": "🡆",
-                        "previous": "🡄"
-                    }
-                }
-            });
-        });
-    </script>
+    <?php include_once './includes/table-script.php'; ?>
 </body>
 <?php include_once './includes/footer.php'; ?>
 

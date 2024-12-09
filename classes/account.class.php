@@ -21,8 +21,19 @@ class Account
         $this->db = new Database();
     }
 
+    function getAllStudents()
+    {
+        $sql = "SELECT st.*, st.lrn, CONCAT(st.first_name,' ', st.last_name) AS student_name, sc.section_name AS section_name 
+        FROM students st
+        JOIN section sc ON st.section_id = sc.id
+        ORDER BY st.id DESC;";
+        $query = $this->db->connect()->prepare($sql);
+        $query->execute();
+        $data = $query->fetchAll();
 
-    //retailer
+        return $data;
+    }
+
     function addStudent()
     {
         $sql = "INSERT INTO students (first_name, last_name, lrn, grade_lvl, section_id, password) VALUES (:first_name, :last_name, :lrn, :grade_lvl, :section_id, :password);";
@@ -33,10 +44,7 @@ class Account
         $query->bindParam(':lrn', $this->lrn);
         $query->bindParam(':grade_lvl', $this->grade_lvl);
         $query->bindParam(':section_id', $this->section_id);
-
-        $hashpassword = password_hash($this->password, PASSWORD_DEFAULT);
-
-        $query->bindParam(':password', $hashpassword);
+        $query->bindParam(':password', $this->password);
 
         return $query->execute();
     }
@@ -75,7 +83,7 @@ class Account
         if ($query->execute()) {
             $data = $query->fetch();
             if ($data && password_verify($password, $data['password'])) {
-                $_SESSION['admin_id'] = $data['id']; 
+                $_SESSION['admin_id'] = $data['id'];
                 $_SESSION['admin_fname'] = $data['first_name'];
                 $_SESSION['admin_lname'] = $data['last_name'];
                 $_SESSION['admin_username'] = $data['username'];
@@ -92,35 +100,34 @@ class Account
         if ($excludeID) {
             $sql .= " and id != :excludeID";
         }
-
         $query = $this->db->connect()->prepare($sql);
         $query->bindParam(':lrn', $lrn);
 
         if ($excludeID) {
             $query->bindParam(':excludeID', $excludeID);
         }
-
         $count = $query->execute() ? $query->fetchColumn() : 0;
-
         return $count > 0;
     }
 
 
 
-    function getSections(){
+    function getSections()
+    {
         $sql = "SELECT id, section_name FROM section";
         $query = $this->db->connect()->prepare($sql);
         $query->execute();
         return $query->fetchAll();  // Return the list of sections
     }
 
-    function fetch($lrn){
+    function fetch($lrn)
+    {
         $sql = "SELECT * FROM students WHERE lrn = :lrn LIMIT 1;";
         $query = $this->db->connect()->prepare($sql);
 
         $query->bindParam('lrn', $lrn);
         $data = null;
-        if($query->execute()){
+        if ($query->execute()) {
             $data = $query->fetch();
         }
 
@@ -128,14 +135,15 @@ class Account
     }
 
 
-    
-    function fetchUser($username){
+
+    function fetchUser($username)
+    {
         $sql = "SELECT * FROM admin WHERE username = :username LIMIT 1;";
         $query = $this->db->connect()->prepare($sql);
 
         $query->bindParam('username', $username);
         $data = null;
-        if($query->execute()){
+        if ($query->execute()) {
             $data = $query->fetch();
         }
 

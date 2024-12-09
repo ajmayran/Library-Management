@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Books</title>
+    <title>Request Books</title>
     <link rel="stylesheet" href="./css/headerstyles.css">
     <link rel="stylesheet" href="./css/footer.css">
     <link rel="stylesheet" href="./css/table-style.css">
@@ -26,16 +26,28 @@
 
     <?php
     $student_id = $_SESSION['student_id'];
-    $book_id = $_GET['book_id'] ?? null;
-    
-    if (!$book_id) {
-        echo "Invalid book ID.";
-        exit;
-    }
-
     $bookObj = new Books();
     $array = $bookObj->fetchAvailableBooks();
+    $message = '';
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['book_id'])) {
+        $book_id = intval($_POST['book_id']);
+
+        // Check if the student has already requested or borrowed the book
+        if ($bookObj->hasAlreadyBorrowed($student_id, $book_id)) {
+            $message = "You have already borrowed or requested this book."; 
+            echo "<script>alert('$message');</script>";
+        } else {
+            $success = $bookObj->book_request($student_id, $book_id);
+            if ($success) {
+                $message = "Book request sent successfully!";
+                echo "<script>alert('$message');</script>";
+            } else {
+                $message = "Failed to send the request.";
+                echo "<script>alert('$message');</script>";
+            }
+        }
+    }
 
     ?>
     <div class="table-responsive">
@@ -72,7 +84,13 @@
                             <td><?= $arr['publisher_name'] ?></td>
                             <td class="text-center"><?= $arr['no_of_copies'] ?></td>
                             <td>
-                                <a href="request_book.php?id=<?= $arr['id'] ?>" class="text-primary">Request Book</a>
+                                <form method="POST" action="">
+                                    <input type="hidden" name="book_id" value="<?= $arr['id'] ?>">
+                                    <button type="submit" class="btn btn-primary btn-sm"
+                                        <?= $bookObj->hasAlreadyBorrowed($student_id, $arr['id']) ? 'disabled' : '' ?>>
+                                        Request Book
+                                    </button>
+                                </form>
                             </td>
 
                         </tr>

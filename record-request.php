@@ -10,24 +10,39 @@
     <link rel="stylesheet" href="./css/table-style.css">
     <?php include_once './includes/header-link.php'; ?>
 </head>
+
 <body>
     <?php include_once './includes/student_navbar.php'; ?>
     <br>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="text-secondary">My Dashboard</h4>
-            <a href="record-request.php" class="btn btn-primary">View Requests</a>
+            <h4 class="text-secondary">My Request Records</h4>
         </div>
     </div>
     <?php
     require_once './classes/book.class.php';
     require_once './includes/functions.php';
     $bookObj = new Books();
-    $keyword = '';
-    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-        $keyword = clean_input($_POST['keyword']);
+
+    if (isset($_GET['id'])) {
+        $request_id = $_GET['id'];
+        $bookObj = new Books();
+
+        // Call the removeRequest function
+        if ($bookObj->removeRequest($request_id)) {
+            // If the request is removed successfully, display a success message
+            echo "<script>
+                    alert('Book request has been removed successfully.');
+                    window.location.href = 'borrow-book.php'; // Redirect to the request page after removal
+                  </script>";
+        } else {
+            // If something goes wrong, display an error message
+            echo "<script>
+                    alert('Failed to remove the book request. Please try again.');
+                  </script>";
+        }
     }
-    $array = $bookObj->showBorrowed();
+    $array = $bookObj->showRequestRecord();
     ?>
 
     <div class="table-responsive">
@@ -38,9 +53,9 @@
                     <th scope="col">Book Title</th>
                     <th scope="col">Book Author</th>
                     <th scope="col">Subject</th>
-                    <th scope="col">Borrowed Date</th>
-                    <th scope="col">Return Date</th>
+                    <th scope="col">Request Date</th>
                     <th scope="col">Status</th>
+                    <th scope="col"></th>
                 </tr>
             </thead>
             <tbody>
@@ -55,15 +70,25 @@
                     <?php
                 } else {
                     foreach ($array as $arr) {
+                        $status = $arr['status'];
                     ?>
                         <tr>
                             <td><?= $arr['id'] ?></td>
                             <td><?= $arr['title'] ?></td>
                             <td><?= $arr['author'] ?></td>
                             <td><?= $arr['subject_name'] ?></td>
-                            <td><?= date('F j, Y', strtotime($arr['borrow_date'])) ?></td>
-                            <td><?= $arr['return_date'] ?></td>
+                            <td><?= date('F j, Y', strtotime($arr['date_requested'])) ?></td>
                             <td><?= $arr['status'] ?></td>
+                            <td>
+                            <?php
+                                if ($status != 'Approved' AND $status != 'Denied') {
+                                ?>
+                                <a href="?id=<?= $arr['id'] ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this request?');">Remove Request</a>
+                                <?php
+                                }
+                                ?>
+                            </td>
+
                         </tr>
                 <?php
                     }
