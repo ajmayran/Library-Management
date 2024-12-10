@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="./css/table-style.css">
     <?php include_once './includes/header-link.php'; ?>
 </head>
+
 <body>
     <?php include_once './includes/student_navbar.php'; ?>
     <br>
@@ -59,7 +60,19 @@
                         <tr>
                             <td><?= $arr['id'] ?></td>
                             <td><?= $arr['title'] ?></td>
-                            <td><?= $arr['author'] ?></td>
+                            <td>
+                                <?php
+                                // Check if authors are available and split if needed
+                                if (isset($arr['authors']) && !empty($arr['authors'])):
+                                    $authors = explode(', ', $arr['authors']);
+                                    foreach ($authors as $author):
+                                ?>
+                                        <span><?= $author; ?></span>
+                                    <?php endforeach;
+                                else: ?>
+                                    <span>No authors listed</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?= $arr['subject_name'] ?></td>
                             <td><?= date('F j, Y', strtotime($arr['borrow_date'])) ?></td>
                             <td><?= $arr['return_date'] ?></td>

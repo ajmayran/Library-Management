@@ -26,15 +26,15 @@
     $bookObj = new Books();
 
     if (isset($_GET['id'])) {
-        $request_id = $_GET['id'];
+        $id = intval($_GET['id']); 
         $bookObj = new Books();
 
         // Call the removeRequest function
-        if ($bookObj->removeRequest($id, $student_id)) {
+        if ($bookObj->removeRequest($id)) {
             // If the request is removed successfully, display a success message
             echo "<script>
                     alert('Book request has been removed successfully.');
-                    window.location.href = 'borrow-book.php'; // Redirect to the request page after removal
+                    window.location.href = 'record-request.php'; // Redirect to the request page after removal
                   </script>";
         } else {
             // If something goes wrong, display an error message
@@ -50,6 +50,7 @@
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
                 <tr>
+                    <th scope="col">ID</th>
                     <th scope="col">Book Title</th>
                     <th scope="col">Author</th>
                     <th scope="col">Subject</th>
@@ -73,20 +74,9 @@
                         $status = $arr['status'];
                     ?>
                         <tr>
+                            <td><?= $arr['id']?></td>
                             <td><?= $arr['title'] ?></td>
-                            <td>
-                                <?php
-                                // Check if authors are available and split if needed
-                                if (isset($arr['authors']) && !empty($arr['authors'])):
-                                    $authors = explode(', ', $arr['authors']);
-                                    foreach ($authors as $author):
-                                ?>
-                                    <span><?= htmlspecialchars($author); ?></span>
-                                    <?php endforeach;
-                                else: ?>
-                                    <span>No authors listed</span>
-                                <?php endif; ?>
-                            </td>
+                            <td><?= $arr['authors']?></td>
                             <td><?= $arr['subject_name'] ?></td>    
                             <td><?= date('F j, Y', strtotime($arr['date_requested'])) ?></td>
                             <td><?= $arr['status'] ?></td>

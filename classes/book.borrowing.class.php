@@ -67,7 +67,7 @@ class Books
 
     function ShowRequest()
     {
-        $sql = "SELECT br.id,b.title,b.author, CONCAT(st.first_name, ' ', st.last_name) AS student_name, st.grade_lvl AS grade_lvl, sc.section_name AS section_name,
+        $sql = "SELECT br.id,b.title, CONCAT(st.first_name, ' ', st.last_name) AS student_name, st.grade_lvl AS grade_lvl, sc.section_name AS section_name,
                 br.status, DATE_FORMAT(br.date_requested, '%M %e, %Y') AS date_requested
         FROM book_request br
         LEFT JOIN books b ON br.book_id = b.id

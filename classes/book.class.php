@@ -25,10 +25,13 @@ class Books
     {
         try {
             // SQL query to fetch borrowed books along with student and book details
-            $sql = "SELECT bt.*, b.title, b.author, s.subject_name, 
-                           DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date
+            $sql = "SELECT bt.*, b.title, s.subject_name, 
+                    COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors,
+                    DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date
                     FROM borrowing_transaction bt
                     LEFT JOIN books b ON bt.book_id = b.id
+                    LEFT JOIN Book_Authors ba ON b.id = ba.book_id
+                    LEFT JOIN Authors a ON ba.author_id = a.id
                     LEFT JOIN subject s ON b.subject_id = s.id
                     WHERE bt.status = 'Borrowed' AND bt.student_id = :student_id
                     ORDER BY borrow_date DESC;";
@@ -57,10 +60,9 @@ class Books
 
     function showAllBooks()
     {
-        $sql = "SELECT b.*, 
-        s.subject_name, 
-        GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name) AS authors, 
-        GROUP_CONCAT(p.publisher_name ORDER BY p.publisher_name) AS publishers 
+        $sql = "SELECT b.*, s.subject_name, 
+        COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors, 
+        COALESCE(GROUP_CONCAT(p.publisher_name ORDER BY p.publisher_name),'') AS publishers 
         FROM books b
         LEFT JOIN Book_Authors ba ON b.id = ba.book_id
         LEFT JOIN Authors a ON ba.author_id = a.id
@@ -81,8 +83,7 @@ class Books
 
     function fetchAvailableBooks()
     {
-        $sql = "SELECT  b.*, 
-               s.subject_name, 
+        $sql = "SELECT  b.*, s.subject_name, 
         COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors, 
         COALESCE(GROUP_CONCAT(p.publisher_name ORDER BY p.publisher_name),'') AS publishers 
         FROM books b
@@ -135,14 +136,16 @@ class Books
     function showRequestRecord($student_id)
     {
         $sql = "SELECT br.id, b.title, s.subject_name, br.status, 
-                COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors,
+                GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name SEPARATOR ', ') AS authors,
                 DATE_FORMAT(br.date_requested, '%M %e, %Y') AS date_requested
                 FROM book_request br
                 LEFT JOIN books b ON br.book_id = b.id
                 LEFT JOIN Book_Authors ba ON b.id = ba.book_id
                 LEFT JOIN Authors a ON ba.author_id = a.id
                 LEFT JOIN subject s ON b.subject_id = s.id
-                WHERE br.student_id = :student_id";
+                WHERE br.student_id = :student_id
+                GROUP BY br.id
+                ORDER BY b.title";
 
         $query = $this->db->connect()->prepare($sql);
         $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
@@ -151,18 +154,17 @@ class Books
     }
 
     // Add this function in the Books class
-    public function removeRequest($id, $student_id)
+    public function removeRequest($id)
     {
-        $sql = "DELETE FROM book_request WHERE id = :id AND student_id = :student_id";
+        $sql = "DELETE FROM book_request WHERE id = :id";
 
         $query = $this->db->connect()->prepare($sql);
         $query->bindParam(':id', $id, PDO::PARAM_INT);
-        $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
 
         return $query->execute(); // Return true if deletion is successful
     }
 
-    // In your Books class, add a fetchOverdues function like this:
+
 
     public function fetchOverdues($student_id)
     {
