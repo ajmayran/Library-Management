@@ -22,6 +22,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
   $bookObj = new Books();
   $totalRequests = $bookObj->getTotalRequest();
+  $overdueCount = $bookObj->countOverdueBooks();  
   ?>
   <!-- ======= Header ======= -->
   <?php include_once './includes/admin_header.php';  ?>
@@ -94,14 +95,18 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 </div>
 
                 <div class="card-body">
-                  <h5 class="card-title">Fine Collected <span>| This Month</span></h5>
+                  <h5 class="card-title">Overdue Books</h5>
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-piggy-bank-fill"></i>
+                    <i class="bi bi-bookmark-x-fill"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>₱0</h6>
+                      <h6>
+                        <?php
+                        echo $overdueCount;
+                        ?>
+                      </h6>
                     </div>
                   </div>
                 </div>

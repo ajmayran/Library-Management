@@ -36,12 +36,12 @@
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
                 <tr>
-                    <th scope="col">No.</th>
+                    <th scope="col">ID</th>
                     <th scope="col">Book Title</th>
-                    <th scope="col">Book Author</th>
+                    <th scope="col">Authors</th>
+                    <th scope="col">Publishers</th>
                     <th scope="col">Subject</th>
                     <th scope="col">Year</th>
-                    <th scope="col">Book Publisher</th>
                 </tr>
             </thead>
             <tbody>
@@ -49,7 +49,7 @@
                 if (empty($array)) {
                 ?>
                     <tr>
-                        <td colspan="5">
+                        <td colspan="6">
                             <p class="text-center text-muted">No Books found.</p>
                         </td>
                     </tr>
@@ -60,10 +60,34 @@
                         <tr>
                             <td><?= $arr['id'] ?></td>
                             <td><?= $arr['title'] ?></td>
-                            <td><?= $arr['author'] ?></td>
+                            <td>
+                                <?php
+                                // Check if authors are available and split if needed
+                                if (isset($arr['authors']) && !empty($arr['authors'])):
+                                    $authors = explode(', ', $arr['authors']);
+                                    foreach ($authors as $author):
+                                ?>
+                                        <span><?= $author; ?></span>
+                                    <?php endforeach;
+                                else: ?>
+                                    <span>No authors listed</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php
+                                // Check if authors are available and split if needed
+                                if (isset($arr['publishers']) && !empty($arr['publishers'])):
+                                    $publishers = explode(', ', $arr['publishers']);
+                                    foreach ($publishers as $publisher):
+                                ?>
+                                        <span><?= $publisher; ?></span>
+                                    <?php endforeach;
+                                else: ?>
+                                    <span>No publishers listed</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?= $arr['subject_name'] ?></td>
                             <td><?= $arr['year'] ?></td>
-                            <td><?= $arr['publisher_name'] ?></td>
                         </tr>
                 <?php
                     }
@@ -72,7 +96,7 @@
             </tbody>
         </table>
     </div>
-    <?php include_once './includes/table-script.php';?>
+    <?php include_once './includes/table-script.php'; ?>
 </body>
 <?php include_once './includes/footer.php'; ?>
 

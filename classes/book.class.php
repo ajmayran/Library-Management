@@ -21,36 +21,53 @@ class Books
         $this->db = new Database(); // Instantiate the Database class.
     }
 
-    function showBorrowed()
+    function showBorrowed($student_id)
     {
-        // SQL query to fetch borrowed books along with student and book details
-        $sql = "SELECT bt.*, b.title, b.author, s.subject_name, DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date
-                FROM borrowing_transaction bt
-                LEFT JOIN books b ON bt.book_id = b.id
-                LEFT JOIN subject s ON b.subject_id = s.id
-                WHERE bt.status = 'Borrowed'
-                ORDER BY borrow_date DESC;";
+        try {
+            // SQL query to fetch borrowed books along with student and book details
+            $sql = "SELECT bt.*, b.title, b.author, s.subject_name, 
+                           DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date
+                    FROM borrowing_transaction bt
+                    LEFT JOIN books b ON bt.book_id = b.id
+                    LEFT JOIN subject s ON b.subject_id = s.id
+                    WHERE bt.status = 'Borrowed' AND bt.student_id = :student_id
+                    ORDER BY borrow_date DESC;";
 
-        // Prepare and execute the query
-        $query = $this->db->connect()->prepare($sql);
-        $data = null;
+            // Prepare the query
+            $query = $this->db->connect()->prepare($sql);
 
-        // If the query executes successfully, fetch all the data
-        if ($query->execute()) {
-            $data = $query->fetchAll();
+            // Bind the student ID
+            $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
+
+            // Execute the query and fetch all data
+            $data = null;
+            if ($query->execute()) {
+                $data = $query->fetchAll(PDO::FETCH_ASSOC);
+            }
+
+            // Return the fetched data
+            return $data;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return [];
         }
-
-        // Return the fetched data
-        return $data;
     }
+
 
 
     function showAllBooks()
     {
-        $sql = "SELECT b.*, s.subject_name, p.publisher_name
+        $sql = "SELECT b.*, 
+        s.subject_name, 
+        GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name) AS authors, 
+        GROUP_CONCAT(p.publisher_name ORDER BY p.publisher_name) AS publishers 
         FROM books b
+        LEFT JOIN Book_Authors ba ON b.id = ba.book_id
+        LEFT JOIN Authors a ON ba.author_id = a.id
+        LEFT JOIN Book_Publishers bp ON b.id = bp.book_id
+        LEFT JOIN Publisher p ON bp.publisher_id = p.id
         LEFT JOIN subject s ON b.subject_id = s.id
-        LEFT JOIN publisher p ON b.publisher_id = p.id
+        GROUP BY b.id
         ORDER BY b.title ASC;";
 
         $query = $this->db->connect()->prepare($sql);
@@ -64,12 +81,19 @@ class Books
 
     function fetchAvailableBooks()
     {
-        $sql = "SELECT  b.*, s.subject_name, p.publisher_name
-        
+        $sql = "SELECT  b.*, 
+               s.subject_name, 
+        COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors, 
+        COALESCE(GROUP_CONCAT(p.publisher_name ORDER BY p.publisher_name),'') AS publishers 
         FROM books b
+        LEFT JOIN Book_Authors ba ON b.id = ba.book_id
+        LEFT JOIN Authors a ON ba.author_id = a.id
+        LEFT JOIN Book_Publishers bp ON b.id = bp.book_id
+        LEFT JOIN Publisher p ON bp.publisher_id = p.id
         LEFT JOIN subject s ON b.subject_id = s.id
-        LEFT JOIN publisher p ON b.publisher_id = p.id
-        WHERE no_of_copies > 0 ORDER BY b.title ASC;";
+        WHERE b.no_of_copies > 0 
+        GROUP BY b.id
+        ORDER BY b.title ASC;";
 
         $query = $this->db->connect()->prepare($sql);
 
@@ -108,52 +132,62 @@ class Books
         return $query->execute();
     }
 
-    function showRequestRecord()
+    function showRequestRecord($student_id)
     {
-        $sql = "SELECT br.id,b.title,b.author, s.subject_name,br.status, DATE_FORMAT(br.date_requested, '%M %e, %Y') AS date_requested
-        FROM book_request br
-        LEFT JOIN books b ON br.book_id = b.id
-        LEFT JOIN subject s ON b.subject_id = s.id;";
+        $sql = "SELECT br.id, b.title, s.subject_name, br.status, 
+                COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors,
+                DATE_FORMAT(br.date_requested, '%M %e, %Y') AS date_requested
+                FROM book_request br
+                LEFT JOIN books b ON br.book_id = b.id
+                LEFT JOIN Book_Authors ba ON b.id = ba.book_id
+                LEFT JOIN Authors a ON ba.author_id = a.id
+                LEFT JOIN subject s ON b.subject_id = s.id
+                WHERE br.student_id = :student_id";
 
         $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
         $query->execute();
         return $query->fetchAll();
     }
 
     // Add this function in the Books class
-    public function removeRequest($id)
+    public function removeRequest($id, $student_id)
     {
-        $sql = "DELETE FROM book_request WHERE id = :id";
+        $sql = "DELETE FROM book_request WHERE id = :id AND student_id = :student_id";
 
         $query = $this->db->connect()->prepare($sql);
         $query->bindParam(':id', $id, PDO::PARAM_INT);
+        $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
 
         return $query->execute(); // Return true if deletion is successful
     }
 
     // In your Books class, add a fetchOverdues function like this:
 
-    public function fetchOverdues()
+    public function fetchOverdues($student_id)
     {
         try {
             $db = $this->db->connect();
 
-            // Query to get books where the return date is past the expected date and not yet returned
+            // Query to get books where the return date is past the expected date and not yet returned for the specific student
             $sql = "SELECT b.id, b.title, s.subject_name, bt.borrow_date, bt.return_date,
-                       DATEDIFF(CURRENT_DATE, bt.return_date) AS overdue_days
-                FROM borrowing_transaction bt
-                INNER JOIN books b ON bt.book_id = b.id
-                LEFT JOIN subject s ON b.subject_id = s.id
-                WHERE bt.status = 'Borrowed' AND bt.return_date < CURRENT_DATE";
+                           DATEDIFF(CURRENT_DATE, bt.return_date) AS overdue_days
+                    FROM borrowing_transaction bt
+                    INNER JOIN books b ON bt.book_id = b.id
+                    LEFT JOIN subject s ON b.subject_id = s.id
+                    WHERE bt.status = 'Borrowed' 
+                      AND bt.return_date < CURRENT_DATE
+                      AND bt.student_id = :student_id";
 
             $query = $db->prepare($sql);
+            $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
             $query->execute();
             $overdues = $query->fetchAll(PDO::FETCH_ASSOC);
 
             // Adding a fine calculation for each overdue book
             foreach ($overdues as &$overdue) {
                 // Calculate fines 
-                $overdue['fine'] = $overdue['overdue_days'] * 20; // 20 PESO PER DAY
+                $overdue['fine'] = $overdue['overdue_days'] * 20; // 20 PESOS PER DAY
             }
 
             return $overdues;
@@ -163,24 +197,28 @@ class Books
         }
     }
 
-    public function countOverdueBooks() {
+
+    public function countOverdueBooksForStudent($student_id)
+    {
         try {
             $db = $this->db->connect();
-    
-            // Query to count overdue books
+
+            // Query to count overdue books for a specific student
             $sql = "SELECT COUNT(*) AS overdue_count
                     FROM borrowing_transaction bt
-                    WHERE bt.status = 'Borrowed' AND bt.return_date < CURRENT_DATE";
-    
+                    WHERE bt.status = 'Borrowed' 
+                      AND bt.return_date < CURRENT_DATE
+                      AND bt.student_id = :student_id";
+
             $query = $db->prepare($sql);
+            $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
             $query->execute();
             $result = $query->fetch(PDO::FETCH_ASSOC);
-    
+
             return $result['overdue_count'];
         } catch (Exception $e) {
             error_log($e->getMessage());
             return 0;
         }
     }
-    
 }

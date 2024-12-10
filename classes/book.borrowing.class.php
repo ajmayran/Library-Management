@@ -14,6 +14,8 @@ class Books
     public $return_date = '';
     public $status = '';
     public $actual_return_date = '';
+    public $publisher = '';
+    public $authors = '';
 
     protected $db;
 
@@ -40,10 +42,17 @@ class Books
 
     function showAllBooks()
     {
-        $sql = "SELECT b.*, s.subject_name, p.publisher_name
+        $sql = "SELECT b.*, 
+       s.subject_name, 
+       GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name) AS authors, 
+       GROUP_CONCAT(p.publisher_name ORDER BY p.publisher_name) AS publishers 
         FROM books b
+        LEFT JOIN Book_Authors ba ON b.id = ba.book_id
+        LEFT JOIN Authors a ON ba.author_id = a.id
+        LEFT JOIN Book_Publishers bp ON b.id = bp.book_id
+        LEFT JOIN Publisher p ON bp.publisher_id = p.id
         LEFT JOIN subject s ON b.subject_id = s.id
-        LEFT JOIN publisher p ON b.publisher_id = p.id
+        GROUP BY b.id
         ORDER BY b.title ASC;";
 
         $query = $this->db->connect()->prepare($sql);
@@ -255,6 +264,26 @@ class Books
         } catch (Exception $e) {
             error_log($e->getMessage());
             return false;
+        }
+    }
+
+    public function countOverdueBooks() {
+        try {
+            $db = $this->db->connect();
+    
+            // Query to count overdue books
+            $sql = "SELECT COUNT(*) AS overdue_count
+                    FROM borrowing_transaction bt
+                    WHERE bt.status = 'Borrowed' AND bt.return_date < CURRENT_DATE";
+    
+            $query = $db->prepare($sql);
+            $query->execute();
+            $result = $query->fetch(PDO::FETCH_ASSOC);
+    
+            return $result['overdue_count'];
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return 0;
         }
     }
 }

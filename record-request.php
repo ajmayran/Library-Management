@@ -11,6 +11,7 @@
     <?php include_once './includes/header-link.php'; ?>
 </head>
 
+
 <body>
     <?php include_once './includes/student_navbar.php'; ?>
     <br>
@@ -29,7 +30,7 @@
         $bookObj = new Books();
 
         // Call the removeRequest function
-        if ($bookObj->removeRequest($request_id)) {
+        if ($bookObj->removeRequest($id, $student_id)) {
             // If the request is removed successfully, display a success message
             echo "<script>
                     alert('Book request has been removed successfully.');
@@ -42,16 +43,15 @@
                   </script>";
         }
     }
-    $array = $bookObj->showRequestRecord();
+    $array = $bookObj->showRequestRecord($student_id);
     ?>
 
     <div class="table-responsive">
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
                 <tr>
-                    <th scope="col">No.</th>
                     <th scope="col">Book Title</th>
-                    <th scope="col">Book Author</th>
+                    <th scope="col">Author</th>
                     <th scope="col">Subject</th>
                     <th scope="col">Request Date</th>
                     <th scope="col">Status</th>
@@ -63,7 +63,7 @@
                 if (empty($array)) {
                 ?>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="6">
                             <p class="text-center text-muted" style="padding: 10rem;">No Books found.</p>
                         </td>
                     </tr>
@@ -73,17 +73,28 @@
                         $status = $arr['status'];
                     ?>
                         <tr>
-                            <td><?= $arr['id'] ?></td>
                             <td><?= $arr['title'] ?></td>
-                            <td><?= $arr['author'] ?></td>
-                            <td><?= $arr['subject_name'] ?></td>
+                            <td>
+                                <?php
+                                // Check if authors are available and split if needed
+                                if (isset($arr['authors']) && !empty($arr['authors'])):
+                                    $authors = explode(', ', $arr['authors']);
+                                    foreach ($authors as $author):
+                                ?>
+                                    <span><?= htmlspecialchars($author); ?></span>
+                                    <?php endforeach;
+                                else: ?>
+                                    <span>No authors listed</span>
+                                <?php endif; ?>
+                            </td>
+                            <td><?= $arr['subject_name'] ?></td>    
                             <td><?= date('F j, Y', strtotime($arr['date_requested'])) ?></td>
                             <td><?= $arr['status'] ?></td>
                             <td>
-                            <?php
-                                if ($status != 'Approved' AND $status != 'Denied') {
+                                <?php
+                                if ($status != 'Approved' and $status != 'Denied') {
                                 ?>
-                                <a href="?id=<?= $arr['id'] ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this request?');">Remove Request</a>
+                                    <a href="?id=<?= $arr['id'] ?>" class="btn btn-danger" onclick="return confirm('Are you sure you want to remove this request?');">Remove Request</a>
                                 <?php
                                 }
                                 ?>

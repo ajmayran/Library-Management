@@ -5,6 +5,7 @@ if (!isset($_SESSION['student_id'])) {
     header('Location: index.php');
     exit;
 }
+$student_id = $_SESSION['student_id']; 
 ?>
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <div class="container-fluid">

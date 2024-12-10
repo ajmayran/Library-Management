@@ -27,7 +27,7 @@
     if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $keyword = clean_input($_POST['keyword']);
     }
-    $array = $bookObj->showBorrowed();
+    $array = $bookObj->showBorrowed($student_id);
     ?>
 
     <div class="table-responsive">

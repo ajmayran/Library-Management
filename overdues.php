@@ -18,7 +18,7 @@
     require_once './classes/book.class.php';
     require_once './includes/functions.php';
     $bookObj = new Books();
-    $array = $bookObj->fetchOverdues();
+    $array = $bookObj->fetchOverdues($student_id);
     ?>
     <div class="container">
         <div class="d-flex justify-content-start align-items-center mb-3">
@@ -35,7 +35,7 @@
                     <h3 class="card-text text-danger">
                         <?php
                         // Get overdue count
-                        $overdueCount = $bookObj->countOverdueBooks();
+                        $overdueCount = $bookObj->countOverdueBooksForStudent($student_id);
                         echo $overdueCount;
                         ?>
                     </h3>

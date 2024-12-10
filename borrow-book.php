@@ -35,7 +35,7 @@
 
         // Check if the student has already requested or borrowed the book
         if ($bookObj->hasAlreadyBorrowed($student_id, $book_id)) {
-            $message = "You have already borrowed or requested this book."; 
+            $message = "You have already borrowed or requested this book.";
             echo "<script>alert('$message');</script>";
         } else {
             $success = $bookObj->book_request($student_id, $book_id);
@@ -54,11 +54,11 @@
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
                 <tr>
-                    <th scope="col">No.</th>
                     <th scope="col">Book Title</th>
+                    <th scope="col">Authors</th>
+                    <th scope="col">Publishers</th>
                     <th scope="col">Subject</th>
                     <th scope="col">Year</th>
-                    <th scope="col">Book Publisher</th>
                     <th scope="col">No. of Copies</th>
                     <th scope="col"></th>
                 </tr>
@@ -77,11 +77,35 @@
                     foreach ($array as $arr) {
                     ?>
                         <tr>
-                            <td><?= $arr['id'] ?></td>
                             <td><?= $arr['title'] ?></td>
+                            <td>
+                                <?php
+                                // Check if authors are available and split if needed
+                                if (isset($arr['authors']) && !empty($arr['authors'])):
+                                    $authors = explode(', ', $arr['authors']);
+                                    foreach ($authors as $author):
+                                ?>
+                                        <span><?= $author; ?></span>
+                                    <?php endforeach;
+                                else: ?>
+                                    <span>No authors listed</span>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <?php
+                                // Check if authors are available and split if needed
+                                if (isset($arr['publishers']) && !empty($arr['publishers'])):
+                                    $publishers = explode(', ', $arr['publishers']);
+                                    foreach ($publishers as $publisher):
+                                ?>
+                                        <span><?= $publisher; ?></span>
+                                    <?php endforeach;
+                                else: ?>
+                                    <span>No publishers listed</span>
+                                <?php endif; ?>
+                            </td>
                             <td><?= $arr['subject_name'] ?></td>
                             <td><?= $arr['year'] ?></td>
-                            <td><?= $arr['publisher_name'] ?></td>
                             <td class="text-center"><?= $arr['no_of_copies'] ?></td>
                             <td>
                                 <form method="POST" action="">

@@ -3,7 +3,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -56,8 +55,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <main id="main" class="main">
         <div class="pagetitle">
             <div class="d-flex justify-content-between">
+                <div>
                 <h1>Management</h1>
-                <a href="add-book.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" style="margin-right: 5px;"></i>Add Book</a>
+                </div>
+                <div class="d-flex gap-2">
+                <a href="add-author.php" class="btn btn-primary btn-sm"></i>Add Author</a>
+                <a href="add-publisher.php" class="btn btn-primary btn-sm"></i>Add Publisher</a>
+                <a href="add-book.php" class="btn btn-primary btn-sm">Add Book</a>
+                </div>
             </div>
             <nav>
                 <ol class="breadcrumb">
@@ -76,11 +81,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <table id="studentTable" class="display table table-striped">
                             <thead>
                                 <tr>
-                                    <th>No.</th>
                                     <th>Book Title</th>
-                                    <th>Year</th>
-                                    <th>ISBN</th>
+                                    <th>Authors</th>
                                     <th>Publisher</th>
+                                    <th>Year</th>
                                     <th>Subject</th>
                                     <th>No. of Copies</th>
                                     <th>Action</th>
@@ -89,11 +93,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
                             <tbody>
                                 <?php foreach ($books as $book) : ?>
                                     <tr>
-                                        <td><?= $book['id']; ?></td>
                                         <td><?= $book['title']; ?></td>
+                                        <td><?= $book['authors']; ?></td>
+                                        <td><?= $book['publishers']; ?></td>
                                         <td><?= $book['year']; ?></td>
-                                        <td><?= $book['isbn']; ?></td>
-                                        <td><?= $book['publisher_name']; ?></td>
                                         <td><?= $book['subject_name']; ?></td>
                                         <td><?= $book['no_of_copies']; ?></td>
                                         <td>
