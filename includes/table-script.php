@@ -11,7 +11,7 @@
                     [20, 40, 60, 80 - 1],
                     [20, 40, 60, 80, "All"]
                 ],
-                "searching": true,
+                "searching": true,  
                 "ordering": false,
                 "paging": true,
                 "language": {

@@ -10,6 +10,20 @@
     <link rel="stylesheet" href="./css/table-style.css">
     <?php include_once './includes/header-link.php'; ?>
 </head>
+<style>
+    #booksTable td {
+        padding: 1rem;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+    #booksTable th {
+        padding: 1rem;
+    }
+</style>
 
 <body>
     <?php include_once './includes/student_navbar.php'; ?>
@@ -20,7 +34,6 @@
             <a href="borrow-book.php" class="btn btn-primary">Request Book</a>
         </div>
     </div>
-
     <?php
     require_once './classes/book.class.php';
     require_once './includes/functions.php';
@@ -36,7 +49,7 @@
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
                 <tr>
-                    <th scope="col">ID</th>
+                    <th scope="col">ISBN</th>
                     <th scope="col">Book Title</th>
                     <th scope="col">Authors</th>
                     <th scope="col">Publishers</th>
@@ -58,7 +71,7 @@
                     foreach ($array as $arr) {
                     ?>
                         <tr>
-                            <td><?= $arr['id'] ?></td>
+                            <td><?= $arr['isbn'] ?></td>
                             <td><?= $arr['title'] ?></td>
                             <td>
                                 <?php

@@ -10,7 +10,14 @@
     <link rel="stylesheet" href="./css/table-style.css">
     <?php include_once './includes/header-link.php'; ?>
 </head>
-
+<style>
+    #booksTable td{
+        padding: 1rem;
+    }
+    #booksTable th{
+        padding: 1rem;
+    }    
+</style>
 <body>
     <?php include_once './includes/student_navbar.php'; ?>
     <br>

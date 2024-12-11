@@ -10,7 +10,20 @@
     <link rel="stylesheet" href="./css/table-style.css">
     <?php include_once './includes/header-link.php'; ?>
 </head>
-
+<style>
+    #booksTable td {
+        padding: 1rem;
+        max-width: 300px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.875rem;
+        vertical-align: middle;
+    }
+    #booksTable th {
+        padding: 1rem;
+    }
+</style>
 <body>
     <?php include_once './includes/student_navbar.php'; ?>
     <br>

@@ -12,9 +12,11 @@
     color: #ffffff; /* White text */
     text-transform: uppercase; /* Capitalized headers */
     font-size: 1rem; /* Slightly smaller font size */
+    padding: 1rem; /* Add padding */
 }
-.table th {
+.table th{
     white-space: nowrap; /* Ensures text stays on one line */
+    padding: 1rem; /* Add padding */
 }
 
 .table-hover tbody tr:hover {
@@ -28,7 +30,7 @@
     white-space: nowrap; /* Prevent wrapping */
     font-size: 0.875rem; /* Slightly smaller font size */
     vertical-align: middle; /* Vertically center content */
-    padding: 0.5rem; /* Add padding */
+    padding: 1rem; /* Add padding */
 }
 
 /* No Data Message */
