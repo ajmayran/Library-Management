@@ -160,7 +160,6 @@ $sections = $AccountObj->getSections();
                 <button type="submit" class="btn btn-primary w-100">Save Account</button>
             </form>
         </div>
-        </div>
     </main><!-- End #main -->
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     <!-- Vendor JS Files -->

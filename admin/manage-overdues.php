@@ -7,7 +7,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
-    <title>Manage Requests</title>
+    <title>Manage Overdues</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
     <?php include_once './includes/admin_link.php'; ?>
@@ -19,6 +19,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
     .table th {
         white-space: nowrap;
+        /* Ensures text stays on one line */
     }
 
     .table td {
@@ -32,36 +33,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
     require_once __DIR__ . '/../includes/functions.php';
 
     $bookObj = new Books();
+    $update = $bookObj->updateOverdueStatus();
+    $issued = $bookObj->showOverdueBooks();
 
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        if (isset($_POST['approve_with_remarks'])) {
-            $request_id = intval($_POST['request_id']);
-            $remarks = $_POST['remarks'];
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return'])) {
+        $transaction_id = intval($_POST['transaction_id']);
+        $remarks = $_POST['remarks'];
 
-            $success = $bookObj->approveRequest($request_id, $remarks);
-
-            if ($success) {
-                echo "<script>alert('Request approved successfully!');</script>";
-            } else {
-                echo "<script>alert('Failed to approve the request.');</script>";
-            }
-        }
-
-        if (isset($_POST['delete'])) {
-            $request_id = intval($_POST['request_id']);
-            $success = $bookObj->declineRequest($request_id);
-
-            if ($success) {
-                echo "<script>alert('Request declined successfully!');</script>";
-            } else {
-                echo "<script>alert('Failed to delete the request.');</script>";
-            }
-        }
+        // Assuming the method returnBook has been modified to accept remarks
+        $success = $bookObj->returnBook($transaction_id, $remarks); // Now passing remarks
+        $message = $success ? "Book returned successfully!" : "Failed to return the book.";
+        echo "<script>alert('$message');</script>";
     }
-    $requests = $bookObj->ShowRequest();
     ?>
-    <!-- ======= Header ======= -->
+
     <?php include_once './includes/admin_header.php';  ?>
     <!-- ======= Sidebar ======= -->
     <?php include_once './includes/admin_sidebar.php';  ?>
@@ -72,47 +58,48 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="../admin/dashboard.php">Home</a></li>
-                    <li class="breadcrumb-item active">Requests</li>
+                    <li class="breadcrumb-item active">Overdues</li>
                 </ol>
             </nav>
         </div><!-- End Page Title -->
+
         <section class="section">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Pending Request</h5>
-                    <!-- Table with responsive wrapper -->
+                    <h5 class="card-title">Overdue Books</h5>
                     <div class="table-responsive">
-                        <table id="pendingTable" class="display table table-striped">
+                        <table id="issuedTable" class="display table table-striped">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Book Title</th>
                                     <th>Student Name</th>
                                     <th>Grade Level</th>
                                     <th>Section</th>
-                                    <th>Date Requested</th>
-                                    <th>Actions</th>
+                                    <th>Date Borrowed</th>
+                                    <th>Expected Return Date</th>
+                                    <th>Overdue Days</th>
+                                    <th>Penalty</th>
+                                    <th>Remarks</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
-                                <?php foreach ($requests as $request) : ?>
+                                <?php foreach ($issued as $arr) : ?>
                                     <tr>
-                                        <td><?= $request['id']; ?></td>
-                                        <td><?= $request['title']; ?></td>
-                                        <td><?= $request['student_name']; ?></td>
-                                        <td><?= $request['grade_lvl']; ?></td>
-                                        <td><?= $request['section_name']; ?></td>
-                                        <td><?= $request['date_requested']; ?></td>
+                                        <td><?= $arr['title']; ?></td>
+                                        <td><?= $arr['student_name']; ?></td>
+                                        <td><?= $arr['grade_lvl']; ?></td>
+                                        <td><?= $arr['section_name']; ?></td>
+                                        <td><?= date('F j, Y', strtotime($arr['borrow_date'])) ?></td>
+                                        <td><?= date('F j, Y', strtotime($arr['return_date'])) ?></td>
+                                        <td><?= $arr['overdue_days'];?></td>
+                                        <td><?= $arr['fine']; ?></td>
+                                        <td><?= $arr['remarks']; ?></td>
                                         <td>
-                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal"
-                                                onclick="setRequestId(<?= $request['id']; ?>)">
-                                                Approve
+                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal"
+                                                onclick="setTransactionId(<?= $arr['id']; ?>)">
+                                                Return
                                             </button>
-                                            <form method="POST" action="" style="display:inline;">
-                                                <input type="hidden" name="request_id" value="<?= $request['id'] ?>">
-                                                <button type="submit" name="delete" class="btn btn-danger btn-sm"
-                                                    onclick="return confirm('Are you sure you want to decline this request?')">Decline</button>
-                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -124,17 +111,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         </section>
 
         <!-- Modal -->
-        <div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true">
+        <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <form method="POST" action="">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="approveModalLabel">Approve Request</h5>
+                            <h5 class="modal-title" id="returnModalLabel">Return Book</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <!-- Hidden Input for Request ID -->
-                            <input type="hidden" name="request_id" id="modal_request_id">
+                            <!-- Hidden Input for Transaction ID -->
+                            <input type="hidden" name="transaction_id" id="transaction_id">
 
                             <!-- Textarea for Remarks -->
                             <div class="mb-3">
@@ -144,13 +131,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" name="approve_with_remarks" class="btn btn-success">Approve</button>
+                            <button type="submit" name="return" class="btn btn-success">Return</button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-
     </main><!-- End #main -->
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
@@ -159,14 +145,14 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <script>
         $(document).ready(function() {
             // Initialize DataTables with responsive option and disable ordering
-            $('#pendingTable').DataTable({
+            $('#issuedTable').DataTable({
                 ordering: false, // Disable ordering/sorting
                 responsive: true // Enable responsiveness
             });
         });
 
-        function setRequestId(requestId) {
-            document.getElementById('modal_request_id').value = requestId;
+        function setTransactionId(transactionId) {
+            document.getElementById('transaction_id').value = transactionId;
         }
     </script>
 </body>

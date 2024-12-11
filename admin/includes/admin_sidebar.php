@@ -11,11 +11,16 @@
 
     <!-- Management Section -->
     <li class="nav-item">
-      <a class="nav-link collapsed <?php echo ($current_page == 'manage-books.php' || $current_page == 'manage-request.php' || $current_page == 'manage-borrowing.php' || $current_page == 'manage-students.php') ? 'active' : ''; ?>"
+      <a class="nav-link collapsed <?php echo ($current_page == 'manage-books.php' || $current_page == 'manage-request.php' || $current_page == 'manage-borrowing.php' || $current_page == 'manage-students.php' || $current_page == 'manage-overdues.php') ? 'active' : ''; ?>"
         data-bs-target="#forms-nav" data-bs-toggle="collapse" href="#">
         <i class="bi bi-journal-text"></i><span>Management</span><i class="bi bi-chevron-down ms-auto"></i>
       </a>
       <ul id="forms-nav" class="nav-content collapse" data-bs-parent="#sidebar-nav">
+        <li>
+          <a href="manage-students.php" class="<?php echo ($current_page == 'manage-students.php') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i><span>Students</span>
+          </a>
+        </li>
         <li>
           <a href="manage-books.php" class="<?php echo ($current_page == 'manage-books.php') ? 'active' : ''; ?>">
             <i class="bi bi-circle"></i><span>Books</span>
@@ -32,8 +37,8 @@
           </a>
         </li>
         <li>
-          <a href="manage-students.php" class="<?php echo ($current_page == 'manage-students.php') ? 'active' : ''; ?>">
-            <i class="bi bi-circle"></i><span>Students</span>
+          <a href="manage-overdues.php" class="<?php echo ($current_page == 'manage-overdues.php') ? 'active' : ''; ?>">
+            <i class="bi bi-circle"></i><span>Overdue Books</span>
           </a>
         </li>
       </ul>

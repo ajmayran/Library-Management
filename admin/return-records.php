@@ -10,16 +10,13 @@
     <?php include_once './includes/admin_link.php'; ?>
 </head>
 <style>
-    /* Ensuring table takes full width and prevents compression */
     .table-responsive {
         overflow-x: auto;
     }
-
     .table th {
         white-space: nowrap;
-        /* Ensures text stays on one line */
+        font-size: 12px;
     }
-
     .table td {
         font-size: 10px;
     }
@@ -52,7 +49,6 @@
                         <table id="issuedTable" class="display table table-striped">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Book Title</th>
                                     <th>Student Name</th>
                                     <th>Grade Level</th>
@@ -60,12 +56,12 @@
                                     <th>Date Issued</th>
                                     <th>Expected Return Date</th>
                                     <th>Actual Return Date</th>
+                                    <th>Remarks</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($records as $arr) : ?>
                                     <tr>
-                                        <td><?= $arr['id']; ?></td>
                                         <td><?= $arr['title']; ?></td>
                                         <td><?= $arr['student_name']; ?></td>
                                         <td><?= $arr['grade_lvl']; ?></td>
@@ -73,6 +69,7 @@
                                         <td><?= $arr['borrow_date']; ?></td>
                                         <td><?= $arr['return_date']; ?></td>
                                         <td><?= $arr['actual_return_date']; ?></td>
+                                        <td><?= $arr['remarks']; ?></td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>

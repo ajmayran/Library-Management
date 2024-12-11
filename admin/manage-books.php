@@ -59,9 +59,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <h1>Management</h1>
                 </div>
                 <div class="d-flex gap-2">
-                <a href="add-author.php" class="btn btn-primary btn-sm"></i>Add Author</a>
-                <a href="add-publisher.php" class="btn btn-primary btn-sm"></i>Add Publisher</a>
-                <a href="add-book.php" class="btn btn-primary btn-sm">Add Book</a>
+                <a href="add-book.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" style="margin-right: 5px;"></i>Add Book</a>
                 </div>
             </div>
             <nav>

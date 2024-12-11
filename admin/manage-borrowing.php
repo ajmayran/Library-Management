@@ -37,9 +37,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return'])) {
         $transaction_id = intval($_POST['transaction_id']);
-        $success = $bookObj->returnBook($transaction_id); // Call the return function
-        $message = $success ? "Book returned successfully!" : "Failed to return the book.";
-        echo "<script>alert('$message');</script>";
+    $remarks = $_POST['remarks'];
+
+    // Assuming the method returnBook has been modified to accept remarks
+    $success = $bookObj->returnBook($transaction_id, $remarks); // Now passing remarks
+    $message = $success ? "Book returned successfully!" : "Failed to return the book.";
+    echo "<script>alert('$message');</script>";
     }
     ?>
     <!-- ======= Header ======= -->
@@ -68,33 +71,31 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         <table id="issuedTable" class="display table table-striped">
                             <thead>
                                 <tr>
-                                    <th>ID</th>
                                     <th>Book Title</th>
                                     <th>Student Name</th>
                                     <th>Grade Level</th>
                                     <th>Section</th>
                                     <th>Date Borrowed</th>
                                     <th>Expected Return Date</th>
+                                    <th>Remarks</th>
                                     <th></th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php foreach ($issued as $arr) : ?>
                                     <tr>
-                                        <td><?= $arr['id']; ?></td>
                                         <td><?= $arr['title']; ?></td>
                                         <td><?= $arr['student_name']; ?></td>
                                         <td><?= $arr['grade_lvl']; ?></td>
                                         <td><?= $arr['section_name']; ?></td>
                                         <td><?= date('F j, Y', strtotime($arr['borrow_date'])) ?></td>
                                         <td><?= date('F j, Y', strtotime($arr['return_date'])) ?></td>
+                                        <td><?= $arr['remarks'];?></td>
                                         <td>
-                                            <form method="POST" action="">
-                                                <input type="hidden" name="transaction_id" value="<?= $arr['id']; ?>">
-                                                <button type="submit" name="return" class="btn btn-success btn-sm" onclick="return confirm('Confirmation on returned book');">
-                                                    Return
-                                                </button>
-                                            </form>
+                                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#returnModal"
+                                                onclick="setTransactionId(<?= $arr['id']; ?>)">
+                                                Return
+                                            </button>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -105,6 +106,35 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </div>
         </section>
     </main><!-- End #main -->
+
+    <!-- Modal -->
+    <div class="modal fade" id="returnModal" tabindex="-1" aria-labelledby="returnModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form method="POST" action="">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="returnModalLabel">Return Book</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Hidden Input for Transaction ID -->
+                        <input type="hidden" name="transaction_id" id="transaction_id">
+
+                        <!-- Textarea for Remarks -->
+                        <div class="mb-3">
+                            <label for="remarks" class="form-label">Remarks</label>
+                            <textarea class="form-control" name="remarks" id="remarks" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" name="return" class="btn btn-success">Return</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
@@ -117,6 +147,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 responsive: true // Enable responsiveness
             });
         });
+
+        function setTransactionId(transactionId) {
+            document.getElementById('transaction_id').value = transactionId;
+        }
     </script>
 </body>
 

@@ -7,12 +7,16 @@ class Books
     public $id = '';
     public $title = '';
     public $author = '';
+    public $isbn = '';
+    public $year = '';
     public $no_of_copies = '';
+
     public $student_id = '';
     public $book_id = '';
     public $borrow_date = '';
     public $return_date = '';
     public $status = '';
+    public $subject_id = '';
 
     protected $db;
 
@@ -21,20 +25,45 @@ class Books
         $this->db = new Database(); // Instantiate the Database class.
     }
 
+
+    function addBook()
+    {
+        $sql = "INSERT INTO books (title, isbn, year, no_of_copies, subject_id) VALUES (:title, :isbn, :year, :no_of_copies, :subject_id)";
+
+        $query = $this->db->connect()->prepare($sql);
+
+        $query->bindParam(':title', $this->title);
+        $query->bindParam(':isbn', $this->isbn);
+        $query->bindParam(':year', $this->year);
+        $query->bindParam(':no_of_copies', $this->no_of_copies);
+        $query->bindParam(':subject_id', $this->subject_id);
+
+        return $query->execute();
+    }
+
+    function getSubjects(){
+        $sql = "SELECT id, subject_name FROM subject";
+        $query = $this->db->connect()->prepare($sql);
+        $query->execute();
+        return $query->fetchAll();
+    }
+
     function showBorrowed($student_id)
     {
         try {
             // SQL query to fetch borrowed books along with student and book details
-            $sql = "SELECT bt.*, b.title, s.subject_name, 
-                    COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors,
-                    DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date
-                    FROM borrowing_transaction bt
-                    LEFT JOIN books b ON bt.book_id = b.id
-                    LEFT JOIN Book_Authors ba ON b.id = ba.book_id
-                    LEFT JOIN Authors a ON ba.author_id = a.id
-                    LEFT JOIN subject s ON b.subject_id = s.id
-                    WHERE bt.status = 'Borrowed' AND bt.student_id = :student_id
-                    ORDER BY borrow_date DESC;";
+            $sql = "SELECT bt.*, b.title, s.subject_name,
+            COALESCE(GROUP_CONCAT(a.first_name, ' ', a.last_name ORDER BY a.first_name),'') AS authors,
+            DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS formatted_borrow_date
+            FROM borrowing_transaction bt
+            LEFT JOIN books b ON bt.book_id = b.id
+            LEFT JOIN Book_Authors ba ON b.id = ba.book_id
+            LEFT JOIN Authors a ON ba.author_id = a.id
+            LEFT JOIN subject s ON b.subject_id = s.id
+            WHERE bt.status = 'Borrowed' AND bt.student_id = :student_id
+            GROUP BY bt.id
+            ORDER BY bt.borrow_date DESC;";
+
 
             // Prepare the query
             $query = $this->db->connect()->prepare($sql);
@@ -145,7 +174,7 @@ class Books
                 LEFT JOIN subject s ON b.subject_id = s.id
                 WHERE br.student_id = :student_id
                 GROUP BY br.id
-                ORDER BY b.title";
+                ORDER BY br.status DESC";
 
         $query = $this->db->connect()->prepare($sql);
         $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
@@ -171,14 +200,21 @@ class Books
         try {
             $db = $this->db->connect();
 
-            // Query to get books where the return date is past the expected date and not yet returned for the specific student
-            $sql = "SELECT b.id, b.title, s.subject_name, bt.borrow_date, bt.return_date,
+            // Step 1: Update all overdue records to 'Overdue'
+            $updateSql = "UPDATE borrowing_transaction 
+                          SET status = 'Overdue' 
+                          WHERE status = 'Borrowed' 
+                            AND return_date < CURRENT_DATE";
+            $updateQuery = $db->prepare($updateSql);
+            $updateQuery->execute();
+
+            // Step 2: Fetch the overdue records for the specific student
+            $sql = "SELECT bt.*, b.id, b.title, s.subject_name,
                            DATEDIFF(CURRENT_DATE, bt.return_date) AS overdue_days
                     FROM borrowing_transaction bt
                     INNER JOIN books b ON bt.book_id = b.id
                     LEFT JOIN subject s ON b.subject_id = s.id
-                    WHERE bt.status = 'Borrowed' 
-                      AND bt.return_date < CURRENT_DATE
+                    WHERE bt.status = 'Overdue'
                       AND bt.student_id = :student_id";
 
             $query = $db->prepare($sql);

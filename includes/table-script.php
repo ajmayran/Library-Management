@@ -12,7 +12,7 @@
                     [20, 40, 60, 80, "All"]
                 ],
                 "searching": true,  
-                "ordering": false,
+                "ordering": true,
                 "paging": true,
                 "language": {
                     "emptyTable": "No data available in table",

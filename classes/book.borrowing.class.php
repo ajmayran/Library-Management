@@ -16,6 +16,7 @@ class Books
     public $actual_return_date = '';
     public $publisher = '';
     public $authors = '';
+    public $subject_id = '';
 
     protected $db;
 
@@ -28,7 +29,6 @@ class Books
     {
         $sql = "SELECT COUNT(*) AS total_requests FROM book_request";
         $query = $this->db->connect()->prepare($sql);
-        $data = null;
         $data = null;
 
         if ($query->execute()) {
@@ -80,7 +80,7 @@ class Books
         return $query->fetchAll();
     }
 
-    public function approveRequest($request_id)
+    public function approveRequest($request_id, $remarks)
     {
         try {
             $db = $this->db->connect();
@@ -100,12 +100,13 @@ class Books
             $return_date = date('Y-m-d', strtotime('+3 days'));
 
             // Create a new borrowing transaction with the calculated return_date
-            $sql = "INSERT INTO borrowing_transaction (book_id, student_id, status, borrow_date, return_date) 
-                    VALUES (:book_id, :student_id, 'Borrowed', NOW(), :return_date)";
+            $sql = "INSERT INTO borrowing_transaction (book_id, student_id, status, borrow_date, return_date, remarks) 
+                    VALUES (:book_id, :student_id, 'Borrowed', NOW(), :return_date, :remarks)";
             $query = $db->prepare($sql);
             $query->bindParam(':book_id', $request['book_id'], PDO::PARAM_INT);
             $query->bindParam(':student_id', $request['student_id'], PDO::PARAM_INT);
             $query->bindParam(':return_date', $return_date, PDO::PARAM_STR);
+            $query->bindParam(':remarks', $remarks, PDO::PARAM_STR);
             $query->execute();
 
             // Update the book_request status to Approved
@@ -173,7 +174,7 @@ class Books
         return $data;
     }
 
-    public function returnBook($transaction_id)
+    public function returnBook($transaction_id, $remarks)
     {
         try {
             $db = $this->db->connect();
@@ -191,10 +192,11 @@ class Books
 
             // Update the borrowing transaction status to 'Returned'
             $sql = "UPDATE borrowing_transaction 
-                    SET status = 'Returned' 
+                    SET status = 'Returned', remarks = :remarks 
                     WHERE id = :transaction_id";
             $query = $db->prepare($sql);
             $query->bindParam(':transaction_id', $transaction_id, PDO::PARAM_INT);
+            $query->bindParam(':remarks', $remarks, PDO::PARAM_STR);
             $query->execute();
 
             // Insert the actual return date into the new table
@@ -220,8 +222,8 @@ class Books
 
     function showReturnedRecords()
     {
-        $sql = "SELECT brl.*, b.title, CONCAT(st.first_name, ' ', st.last_name) AS student_name, st.grade_lvl AS grade_lvl,  sc.section_name,
-                    DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date, DATE_FORMAT(bt.return_date, '%M %e, %Y') AS return_date,
+        $sql = "SELECT brl.*, b.title, CONCAT(st.first_name, ' ', st.last_name) AS student_name, st.grade_lvl AS grade_lvl,  sc.section_name, bt.remarks AS remarks,
+                    DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date, DATE_FORMAT(bt.return_date, '%M %e, %Y') AS return_date, 
                     DATE_FORMAT(brl.actual_return_date, '%M %e, %Y') AS actual_return_date
                     FROM book_return_log brl
                     LEFT JOIN borrowing_transaction bt ON brl.transaction_id = bt.id
@@ -267,23 +269,110 @@ class Books
         }
     }
 
-    public function countOverdueBooks() {
+    public function countOverdueBooks()
+    {
         try {
             $db = $this->db->connect();
-    
+
             // Query to count overdue books
             $sql = "SELECT COUNT(*) AS overdue_count
                     FROM borrowing_transaction bt
                     WHERE bt.status = 'Borrowed' AND bt.return_date < CURRENT_DATE";
-    
+
             $query = $db->prepare($sql);
             $query->execute();
             $result = $query->fetch(PDO::FETCH_ASSOC);
-    
+
             return $result['overdue_count'];
         } catch (Exception $e) {
             error_log($e->getMessage());
             return 0;
+        }
+    }
+
+    public function countIssuedBooks()
+    {
+        try {
+            $db = $this->db->connect();
+
+            // Query to count overdue books
+            $sql = "SELECT COUNT(*) AS issued_count
+                    FROM borrowing_transaction bt
+                    WHERE bt.status = 'Borrowed';";
+
+            $query = $db->prepare($sql);
+            $query->execute();
+            $result = $query->fetch(PDO::FETCH_ASSOC);
+
+            return $result['issued_count'];
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return 0;
+        }
+    }
+
+    function showOverdueBooks()
+    {
+        try {
+            // Define fine rate per day
+            $fine_rate = 20;
+
+            // SQL query to fetch overdue books with calculated overdue days and fine
+            $sql = "SELECT bt.*, b.title, 
+                           CONCAT(st.first_name, ' ', st.last_name) AS student_name, 
+                           st.grade_lvl AS grade_lvl,  
+                           sc.section_name,
+                           DATE_FORMAT(bt.borrow_date, '%M %e, %Y') AS borrow_date, 
+                           DATE_FORMAT(bt.return_date, '%M %e, %Y') AS return_date,
+                           DATEDIFF(CURRENT_DATE, bt.return_date) AS overdue_days,
+                           CASE 
+                               WHEN DATEDIFF(CURRENT_DATE, bt.return_date) > 0 
+                               THEN DATEDIFF(CURRENT_DATE, bt.return_date) * :fine_rate 
+                               ELSE 0 
+                           END AS fine
+                    FROM borrowing_transaction bt
+                    LEFT JOIN books b ON bt.book_id = b.id
+                    LEFT JOIN students st ON bt.student_id = st.id
+                    LEFT JOIN section sc ON st.section_id = sc.id
+                    WHERE bt.status = 'Overdue'
+                    ORDER BY borrow_date DESC;";
+
+            // Prepare the query
+            $query = $this->db->connect()->prepare($sql);
+
+            // Bind the fine rate
+            $query->bindParam(':fine_rate', $fine_rate, PDO::PARAM_INT);
+            $data = null;
+            // If the query executes successfully, fetch all the data
+            if ($query->execute()) {
+                $data = $query->fetchAll(PDO::FETCH_ASSOC);
+            }
+            // Return the fetched data
+            return $data;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return [];
+        }
+    }
+
+
+    public function updateOverdueStatus()
+    {
+        try {
+            $db = $this->db->connect();
+
+            $sql = "UPDATE borrowing_transaction 
+                SET status = 'Overdue' 
+                WHERE status = 'Borrowed' 
+                  AND return_date < CURRENT_DATE";
+
+            $query = $db->prepare($sql);
+            $query->execute();
+
+            return true;
+        } catch (Exception $e) {
+            error_log($e->getMessage());
+            return false;
         }
     }
 }

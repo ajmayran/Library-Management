@@ -61,11 +61,10 @@
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
                 <tr>
-                    <th scope="col">No.</th>
                     <th scope="col">Book Title</th>
                     <th scope="col">Subject</th>
                     <th scope="col">Borrowed Date</th>
-                    <th scope="col">Expected Returned Date</th>
+                    <th scope="col">Expected Return Date</th>
                     <th scope="col">Days Overdue</th>
                     <th scope="col">Fines</th>
                 </tr>
@@ -75,7 +74,7 @@
                 if (empty($array)) {
                 ?>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="6">
                             <p class="text-center text-muted" style="padding: 10rem;">No Books found that is Overdue.</p>
                         </td>
                     </tr>
@@ -84,7 +83,6 @@
                     foreach ($array as $arr) {
                     ?>
                         <tr>
-                            <td><?= $arr['id'] ?></td>
                             <td><?= $arr['title'] ?></td>
                             <td><?= $arr['author'] ?></td>
                             <td><?= $arr['subject_name'] ?></td>

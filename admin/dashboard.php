@@ -13,7 +13,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
   <meta content="" name="keywords">
   <?php include_once './includes/admin_link.php'; ?>
 </head>
+<style>
+  .dashboard .overdue-card .card-icon {
+  color: #C32022;
+  background: #E96D6E;
+}
 
+</style>
 <body>
   <?php
   require_once '../classes/book.borrowing.class.php';
@@ -22,7 +28,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
   $bookObj = new Books();
   $totalRequests = $bookObj->getTotalRequest();
-  $overdueCount = $bookObj->countOverdueBooks();  
+  $overdueCount = $bookObj->countOverdueBooks();
+  $issuedCount = $bookObj->countIssuedBooks();
   ?>
   <!-- ======= Header ======= -->
   <?php include_once './includes/admin_header.php';  ?>
@@ -77,9 +84,40 @@ $current_page = basename($_SERVER['PHP_SELF']);
               </div>
             </div><!-- End Sales Card -->
 
-            <!-- Revenue Card -->
+            <!-- Issued Card -->
             <div class="col-xxl-4 col-md-6">
               <div class="card info-card revenue-card">
+
+                <div class="filter">
+                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                    <li class="dropdown-header text-start">
+                      <h6>Filter</h6>
+                    </li>
+
+                    <li><a class="dropdown-item" href="#">Today</a></li>
+                    <li><a class="dropdown-item" href="#">This Month</a></li>
+                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                  </ul>
+                </div>
+
+                <div class="card-body">
+                  <h5 class="card-title">Issued Books</h5>
+
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-bookmark-check-fill"></i>
+                    </div>
+                    <div class="ps-3">
+                      <h6> <?= $issuedCount  ?></h6>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="col-xxl-4 col-md-6">
+              <div class="card info-card  overdue-card">
 
                 <div class="filter">
                   <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
@@ -99,18 +137,13 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                    <i class="bi bi-bookmark-x-fill"></i>
+                      <i class="bi bi-bookmark-x-fill"></i>
                     </div>
                     <div class="ps-3">
-                      <h6>
-                        <?php
-                        echo $overdueCount;
-                        ?>
-                      </h6>
+                      <h6> <?= $overdueCount ?> </h6>
                     </div>
                   </div>
                 </div>
-
               </div>
             </div>
             <!-- Reports -->

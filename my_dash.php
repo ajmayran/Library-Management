@@ -49,13 +49,12 @@
         <table id="booksTable" class="table  table-hover align-middle shadow-sm">
             <thead class="table-primary">
                 <tr>
-                    <th scope="col">No.</th>
                     <th scope="col">Book Title</th>
                     <th scope="col">Book Author</th>
                     <th scope="col">Subject</th>
                     <th scope="col">Borrowed Date</th>
                     <th scope="col">Return Date</th>
-                    <th scope="col">Status</th>
+                    <th scope="col">Remarks</th>
                 </tr>
             </thead>
             <tbody>
@@ -63,7 +62,7 @@
                 if (empty($array)) {
                 ?>
                     <tr>
-                        <td colspan="7">
+                        <td colspan="6">
                             <p class="text-center text-muted" style="padding: 10rem;">No Books found.</p>
                         </td>
                     </tr>
@@ -72,7 +71,6 @@
                     foreach ($array as $arr) {
                     ?>
                         <tr>
-                            <td><?= $arr['id'] ?></td>
                             <td><?= $arr['title'] ?></td>
                             <td>
                                 <?php
@@ -89,8 +87,8 @@
                             </td>
                             <td><?= $arr['subject_name'] ?></td>
                             <td><?= date('F j, Y', strtotime($arr['borrow_date'])) ?></td>
-                            <td><?= $arr['return_date'] ?></td>
-                            <td><?= $arr['status'] ?></td>
+                            <td><?= date('F j, Y', strtotime($arr['return_date'])) ?></td>
+                            <td><?= $arr['remarks']?></td>
                         </tr>
                 <?php
                     }
