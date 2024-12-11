@@ -84,7 +84,6 @@
                     ?>
                         <tr>
                             <td><?= $arr['title'] ?></td>
-                            <td><?= $arr['author'] ?></td>
                             <td><?= $arr['subject_name'] ?></td>
                             <td><?= $arr['borrow_date'] ?></td>
                             <td><?= $arr['return_date'] ?></td>
@@ -97,7 +96,7 @@
                             </td>
                             <td>
                                 <?php if ($arr['overdue_days'] > 0) { ?>
-                                    $<?= $arr['fine'] ?>
+                                    ₱ <?= $arr['fine'] ?>
                                 <?php } else { ?>
                                     <span class="text-success">No fine</span>
                                 <?php } ?>
