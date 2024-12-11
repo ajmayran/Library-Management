@@ -149,4 +149,28 @@ class Account
 
         return $data;
     }
+
+    // Method to fetch student by ID
+    public function getStudentById($student_id)
+    {
+        $sql = "SELECT * FROM students WHERE id = :student_id";
+        $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
+        $query->execute();
+        return $query->fetch(PDO::FETCH_ASSOC);
+    }
+
+    // Method to update student data
+    public function updateStudent($student_id)
+    {
+        $sql = "UPDATE students SET first_name = :first_name, last_name = :last_name, lrn = :lrn, grade_lvl = :grade_lvl, section_id = :section_id WHERE id = :student_id";
+        $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':first_name', $this->first_name);
+        $query->bindParam(':last_name', $this->last_name);
+        $query->bindParam(':lrn', $this->lrn);
+        $query->bindParam(':grade_lvl', $this->grade_lvl);
+        $query->bindParam(':section_id', $this->section_id);
+        $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);
+        return $query->execute();
+    }
 }
