@@ -244,9 +244,8 @@ class Books
             // Query to count overdue books for a specific student
             $sql = "SELECT COUNT(*) AS overdue_count
                     FROM borrowing_transaction bt
-                    WHERE bt.status = 'Borrowed' 
-                      AND bt.return_date < CURRENT_DATE
-                      AND bt.student_id = :student_id";
+                    WHERE bt.status = 'Overdue'
+                    AND bt.student_id = :student_id";
 
             $query = $db->prepare($sql);
             $query->bindParam(':student_id', $student_id, PDO::PARAM_INT);

@@ -277,7 +277,7 @@ class Books
             // Query to count overdue books
             $sql = "SELECT COUNT(*) AS overdue_count
                     FROM borrowing_transaction bt
-                    WHERE bt.status = 'Borrowed' AND bt.return_date < CURRENT_DATE";
+                    WHERE bt.status = 'Overdue';";
 
             $query = $db->prepare($sql);
             $query->execute();

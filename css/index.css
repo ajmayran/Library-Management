@@ -265,11 +265,11 @@ body{
 }
 
 .toggle-left .toggle-background{
-    background-image: url('../../Library/img/indexadmin.jpg');
+    background-image: url('../resources/img/indexadmin.jpg');
 }
 
 .toggle-right .toggle-background{
-    background-image: url('../../Library/img/indexstudent.jpg');
+    background-image: url('../resources/img/indexstudent.jpg');
 }
 
 
