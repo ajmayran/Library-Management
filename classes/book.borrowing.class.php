@@ -375,4 +375,22 @@ class Books
             return false;
         }
     }
+
+    function showRequestedRecords()
+    {
+        $sql = "SELECT br.*, b.title, CONCAT(st.first_name, ' ', st.last_name) AS student_name, st.grade_lvl AS grade_lvl,  sc.section_name,
+        DATE_FORMAT(br.date_requested, '%M %e, %Y') AS request_date
+        FROM book_request br    
+        LEFT JOIN books b ON br.book_id = b.id
+        LEFT JOIN students st ON br.student_id = st.id
+        LEFT JOIN section sc ON st.section_id = sc.id   
+        ORDER BY request_date DESC;";
+
+        $query = $this->db->connect()->prepare($sql);
+        $data = null;
+        if ($query->execute()) {
+            $data = $query->fetchAll();
+        }
+        return $data;
+    }
 }

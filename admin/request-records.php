@@ -13,9 +13,20 @@
     .table-responsive {
         overflow-x: auto;
     }
+
     .table th {
         white-space: nowrap;
         font-size: 12px;
+    }
+
+    .status-approved {
+        color: green;
+        font-weight: bold;
+    }
+
+    .status-denied {
+        color: red;
+        font-weight: bold;
     }
 </style>
 
@@ -24,7 +35,8 @@
     require_once '../classes/book.borrowing.class.php';
     require_once __DIR__ . '/../includes/functions.php';
     $bookObj = new Books();
-    $records = $bookObj->showReturnedRecords();
+    $records = $bookObj->showRequestedRecords();
+
 
     ?>
     <!-- ======= Header ======= -->
@@ -35,25 +47,23 @@
     <main id="main" class="main">
         <div class="pagetitle">
             <div class="d-flex justify-content-start">
-                <h1><i class="bi bi-bookmark-check-fill" style="margin-right: 8px;"></i>Returned Book Records</h1>
+                <h1><i class="bi bi-bookmark-check-fill" style="margin-right: 8px;"></i>Request Records</h1>
             </div>
         </div><!-- End Page Title -->
         <section class="section">
             <div class="card">
                 <div class="card-body">
-                    <h5 class="card-title">Return Books</h5>
+                    <h5 class="card-title">Requested Books</h5>
                     <div class="table-responsive">
-                        <table id="issuedTable" class="display table table-striped">
+                        <table id="requestsTable" class="display table table-striped">
                             <thead>
                                 <tr>
                                     <th>Book Title</th>
                                     <th>Student Name</th>
                                     <th>Grade Level</th>
                                     <th>Section</th>
-                                    <th>Date Issued</th>
-                                    <th>Expected Return Date</th>
-                                    <th>Actual Return Date</th>
-                                    <th>Remarks</th>
+                                    <th>Date Requested</th>
+                                    <th class="text-center">Status</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -63,10 +73,12 @@
                                         <td><?= $arr['student_name']; ?></td>
                                         <td><?= $arr['grade_lvl']; ?></td>
                                         <td><?= $arr['section_name']; ?></td>
-                                        <td><?= $arr['borrow_date']; ?></td>
-                                        <td><?= $arr['return_date']; ?></td>
-                                        <td><?= $arr['actual_return_date']; ?></td>
-                                        <td><?= $arr['remarks']; ?></td>
+                                        <td><?= $arr['request_date']; ?></td>
+                                        <td class="text-center">
+                                            <div class="status-cell" data-status="<?= $arr['status']; ?>">
+                                                <?= $arr['status']; ?>
+                                            </div>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -83,9 +95,42 @@
     <script>
         $(document).ready(function() {
             // Initialize DataTables with responsive option and disable ordering
-            $('#issuedTable').DataTable({
+            $('#requestsTable').DataTable({
                 ordering: false, // Disable ordering/sorting
                 responsive: true // Enable responsiveness
+            });
+        });
+
+        $(document).ready(function() {
+            $('#requestsTable').DataTable(); // Initialize DataTables
+
+            // Loop through each status cell and apply the styles
+            $('#requestsTable tbody').find('.status-cell').each(function() {
+                const status = $(this).data('status'); // Get the status from the data attribute
+
+                if (status === 'Approved') {
+                    $(this).css({
+                        'background-color': 'green',
+                        'margin-left': '10px',
+                        'margin-right': '10px',
+                        'border-radius': '10px',
+                        'padding': '5px',
+                        'color': 'white',
+                        'font-size': '12px',
+                        'font-weight': 'bold'
+                    });
+                } else if (status === 'Denied') {
+                    $(this).css({
+                        'background-color': 'red',
+                        'margin-left': '10px',
+                        'margin-right': '10px',
+                        'border-radius': '10px',
+                        'padding': '5px',
+                        'color': 'white',
+                        'font-size': '12px',
+                        'font-weight': 'bold'
+                    });
+                }
             });
         });
     </script>

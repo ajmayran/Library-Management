@@ -68,7 +68,10 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Management</h1>
+            <div class="d-flex justify-content-between">
+                <h1>Management</h1>
+                <a href="request-records.php" class="text-primary">Request Records</a>
+            </div>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="../admin/dashboard.php">Home</a></li>

@@ -54,7 +54,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <div class="pagetitle">
             <div class="d-flex justify-content-between">
                 <h1>Management</h1>
-                <a href="return-records.php" class="text-primary">Check Records</a>
+                <a href="return-records.php" class="text-primary">Return Records</a>
             </div>
             <nav>
                 <ol class="breadcrumb">
