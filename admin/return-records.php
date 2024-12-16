@@ -23,7 +23,7 @@
     <?php
     require_once '../classes/book.borrowing.class.php';
     require_once __DIR__ . '/../includes/functions.php';
-    $bookObj = new Books();
+    $bookObj = new Borrow();
     $records = $bookObj->showReturnedRecords();
 
     ?>

@@ -32,7 +32,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     require_once '../classes/book.borrowing.class.php';
     require_once __DIR__ . '/../includes/functions.php';
 
-    $bookObj = new Books();
+    $bookObj = new Borrow();
     $update = $bookObj->updateOverdueStatus();
     $issued = $bookObj->showOverdueBooks();
 

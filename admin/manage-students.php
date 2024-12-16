@@ -31,7 +31,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 
     $accountObj = new Account();
-    $bookObj = new Books();
+    $bookObj = new Borrow();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
         $student_id = intval($_POST['student_id']);

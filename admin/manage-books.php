@@ -3,6 +3,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
@@ -33,7 +34,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     require_once __DIR__ . '/../includes/functions.php';
 
 
-    $bookObj = new Books();
+    $bookObj = new Borrow();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['delete'])) {
         $book_id = intval($_POST['book_id']);  // Use book_id, not student_id
@@ -56,10 +57,12 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <div class="pagetitle">
             <div class="d-flex justify-content-between">
                 <div>
-                <h1>Management</h1>
+                    <h1>Management</h1>
                 </div>
                 <div class="d-flex gap-2">
-                <a href="add-book.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" style="margin-right: 5px;"></i>Add Book</a>
+                    <a href="manage-authors.php" class="btn btn-primary btn-sm">Authors</a>
+                    <a href="manage-publishers.php" class="btn btn-primary btn-sm">Publishers</a>
+                    <a href="add-book.php" class="btn btn-primary btn-sm"><i class="bi bi-plus-lg" style="margin-right: 5px;"></i>Add Book</a>
                 </div>
             </div>
             <nav>

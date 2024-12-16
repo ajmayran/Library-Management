@@ -26,7 +26,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
   require_once __DIR__ . '/../includes/functions.php';
 
 
-  $bookObj = new Books();
+  $bookObj = new Borrow();
   $totalRequests = $bookObj->getTotalRequest();
   $overdueCount = $bookObj->countOverdueBooks();
   $issuedCount = $bookObj->countIssuedBooks();

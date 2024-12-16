@@ -32,7 +32,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <?php
     require_once '../classes/book.borrowing.class.php';
     require_once __DIR__ . '/../includes/functions.php';
-    $bookObj = new Books();
+    $bookObj = new Borrow();
     $issued = $bookObj->showIssuedBooks();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['return'])) {

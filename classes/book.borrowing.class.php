@@ -2,7 +2,7 @@
 
 require_once '../database/connect.php';
 
-class Books
+class Borrow
 {
     public $id = '';
     public $title = '';
@@ -17,6 +17,7 @@ class Books
     public $publisher = '';
     public $authors = '';
     public $subject_id = '';
+    public $email = '';
 
     protected $db;
 
@@ -392,5 +393,95 @@ class Books
             $data = $query->fetchAll();
         }
         return $data;
+    }
+
+    function deleteAuthor($author_id)
+    {
+        $sql = "DELETE FROM authors WHERE id = :author_id";
+        $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':author_id', $author_id);
+        $query->execute();
+        return true;
+    }
+
+    function getAuthors()
+    {
+        $sql = "SELECT * FROM authors ORDER BY last_name ASC";
+        $query = $this->db->connect()->prepare($sql);
+        $query->execute();
+        $data = $query->fetchAll();
+        return $data;
+    }
+
+    function addAuthor($first_name, $last_name)
+    {
+        $sql = "INSERT INTO authors (first_name, last_name) VALUES (:first_name, :last_name)";
+        $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':first_name', $first_name);
+        $query->bindParam(':last_name', $last_name);
+        $query->execute();
+    }
+
+    function addPublisher($publisher_name, $email = '')
+    {
+        // Prepare the SQL query
+        $sql = "INSERT INTO publisher (publisher_name, email) VALUES (:publisher_name, :email)";
+
+        // Prepare the query
+        $query = $this->db->connect()->prepare($sql);
+
+        // Bind parameters
+        $query->bindParam(':publisher_name', $publisher_name);
+        $query->bindParam(':email', $email, PDO::PARAM_STR);
+
+        // Execute the query and check for errors
+        if ($query->execute()) {
+            return true;
+        } else {
+            // Error handling (log the error for debugging)
+            $errorInfo = $query->errorInfo();
+            error_log("Error adding publisher: " . implode(", ", $errorInfo));
+            return false;
+        }
+    }
+
+
+    function deletePublisher($publisher_id)
+    {
+        $sql = "DELETE FROM publisher WHERE id = :publisher_id";
+        $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':publisher_id', $publisher_id);
+        $query->execute();
+        return true;
+    }
+
+    function getPublishers()
+    {
+        $sql = "SELECT * FROM publisher ORDER BY publisher_name ASC";
+        $query = $this->db->connect()->prepare($sql);
+        $query->execute();
+        $data = $query->fetchAll();
+        return $data;
+    }
+
+    // In your Books class
+    public function assignPublisherToBook($book_id, $publisher_id)
+    {
+        $sql = "INSERT INTO book_publishers (book_id, publisher_id) VALUES (:book_id, :publisher_id)";
+        $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':book_id', $book_id);
+        $query->bindParam(':publisher_id', $publisher_id);
+
+        return $query->execute();
+    }
+
+    public function assignAuthorToBook($book_id, $author_id)
+    {
+        $sql = "INSERT INTO book_authors (book_id, author_id) VALUES (:book_id, :author_id)";
+        $query = $this->db->connect()->prepare($sql);
+        $query->bindParam(':book_id', $book_id);
+        $query->bindParam(':author_id', $author_id);
+
+        return $query->execute();
     }
 }
